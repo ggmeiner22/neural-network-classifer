@@ -114,7 +114,6 @@ static void runIdentity(const Config& cfg, int hiddenUnits) {
         std::ostringstream tmp;
         tmp << std::fixed << std::setprecision(2) << h[k];
         std::string s = tmp.str();
-        if (s.size() >= 2 && s[0] == '0' && s[1] == '.') s.erase(0,1);
         std::cout << std::setw(5) << s;
     }
 
