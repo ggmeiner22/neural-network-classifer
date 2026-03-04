@@ -1,5 +1,6 @@
 #include "MLP.h"
 #include <cstdlib>
+#include <iostream>
 #include <ctime>
 #include <cmath>
 #include <algorithm>
@@ -11,7 +12,10 @@ static double randWeight() {
 MLP::MLP(int inputSize, int hiddenSize, int outputSize, OutputMode m)
     : inSize(inputSize), hidSize(hiddenSize), outSize(outputSize), mode(m)
 {
-    std::srand((unsigned)std::time(0));
+    // weight initialization relies on global RNG state; seed should be set
+    // once by the caller (main) using --seed.  Do not reseed here with time,
+    // otherwise repeated runs produce different results even with the same
+    // command-line arguments.
 
     W1.assign(hidSize, std::vector<double>(inSize, 0.0));
     W2.assign(outSize, std::vector<double>(hidSize, 0.0));
@@ -90,6 +94,7 @@ int MLP::predictClass(const std::vector<double>& x) const {
     return best;
 }
 
+
 void MLP::train(const std::vector<std::vector<double>>& X,
                 const std::vector<std::vector<double>>& Y,
                 int epochs,
@@ -101,7 +106,15 @@ void MLP::train(const std::vector<std::vector<double>>& X,
     std::vector<std::vector<double>> V1(hidSize, std::vector<double>(inSize, 0.0));
     std::vector<std::vector<double>> V2(outSize, std::vector<double>(hidSize, 0.0));
 
+    double bestLoss = 1e100;
+    int stall = 0;
+
+    const double minDelta = 1e-6;
+    const int patience = 200;
+
     for (int ep = 0; ep < epochs; ep++) {
+        double totalLoss = 0.0;
+
         for (size_t n = 0; n < X.size(); n++) {
             const std::vector<double>& x = X[n];
             const std::vector<double>& y = Y[n];
@@ -121,6 +134,28 @@ void MLP::train(const std::vector<std::vector<double>>& X,
             if (mode == CLASSIFICATION_SOFTMAX) out = softmax(logits);
             else {
                 for (int i = 0; i < outSize; i++) out[i] = sigmoid(logits[i]);
+            }
+
+            // ---- ADD: accumulate loss for convergence ----
+            if (mode == CLASSIFICATION_SOFTMAX) {
+                // Cross-entropy: -sum y_k log(out_k). For one-hot y, this is just -log(p_true)
+                double sampleLoss = 0.0;
+                for (int k = 0; k < outSize; k++) {
+                    if (y[k] > 0.0) {
+                        double p = out[k];
+                        if (p < 1e-12) p = 1e-12; // avoid log(0)
+                        sampleLoss += -std::log(p);
+                    }
+                }
+                totalLoss += sampleLoss;
+            } else {
+                // Identity: MSE = 0.5 * sum (out_k - y_k)^2
+                double sampleLoss = 0.0;
+                for (int k = 0; k < outSize; k++) {
+                    double diff = out[k] - y[k];
+                    sampleLoss += 0.5 * diff * diff;
+                }
+                totalLoss += sampleLoss;
             }
 
             // ---- output delta ----
@@ -169,5 +204,20 @@ void MLP::train(const std::vector<std::vector<double>>& X,
                 }
             }
         }
+//
+        /* ---- ADD: convergence check at end of epoch ----
+        double avgLoss = totalLoss / (double)X.size();
+
+        if (bestLoss - avgLoss > minDelta) {
+            bestLoss = avgLoss;
+            stall = 0;
+        } else {
+            stall++;
+            if (stall >= patience) {
+                std::cout << "Converged at epoch " << ep
+                          << " avgLoss=" << avgLoss << "\n";
+                break; // converged
+            }
+        }*/
     }
 }

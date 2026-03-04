@@ -223,10 +223,23 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // Use the provided seed for all randomness (weights, shuffling, etc.).
+    // Previously MLP constructor re-seeded with time(0), making runs
+    // nondeterministic; now we rely on this call so the same seed yields the
+    // same results every invocation.
+    std::srand(cfg.seed);
+
     if (cfg.mode == "identity") {
-        // REQUIRED: run with hidden=3 and hidden=4 regardless of --hidden
-        runIdentity(cfg, 3);
-        runIdentity(cfg, 4);
+        // if the user specified a hidden size, only run that one; otherwise
+        // default behaviour used to run both 3 and 4 for convenience.  Grid
+        // search depends on honouring the --hidden flag so that each call
+        // corresponds to a single architecture.
+        if (cfg.hidden > 0) {
+            runIdentity(cfg, cfg.hidden);
+        } else {
+            runIdentity(cfg, 3);
+            runIdentity(cfg, 4);
+        }
         return 0;
     }
 

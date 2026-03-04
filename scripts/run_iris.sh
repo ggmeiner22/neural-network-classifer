@@ -1,3 +1,3 @@
 #!/bin/bash
 make | exit 1
-./nn --mode iris --attr data/iris-attr.txt --train data/iris-train.txt --test data/iris-test.txt      --hidden 8 --lr 0.05 --momentum 0.9 --epochs 2000
+./nn --mode iris --attr data/iris-attr.txt --train data/iris-train.txt --test data/iris-test.txt --hidden 16 --lr 0.01 --momentum 0.9 --epochs 2000 --weight_decay 0.0001
