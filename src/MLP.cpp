@@ -106,12 +106,6 @@ void MLP::train(const std::vector<std::vector<double>>& X,
     std::vector<std::vector<double>> V1(hidSize, std::vector<double>(inSize, 0.0));
     std::vector<std::vector<double>> V2(outSize, std::vector<double>(hidSize, 0.0));
 
-    double bestLoss = 1e100;
-    int stall = 0;
-
-    const double minDelta = 1e-6;
-    const int patience = 200;
-
     for (int ep = 0; ep < epochs; ep++) {
         double totalLoss = 0.0;
 
