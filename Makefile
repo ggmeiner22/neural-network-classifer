@@ -19,4 +19,4 @@ nn: $(OBJ)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
-	rm -f src/*.o nn
+	rm -f src/*.o nn *.dat iris_noisy_raw.txt *.png
