@@ -1,29 +1,76 @@
 # neural-network-classifer
 
-Make executable:
 
+## Compalation and Execution
+```
+chmod -R u+w .
+chmod +x *.sh
 chmod +x scripts/*.sh
+chmod +x src/*.cpp
+```
+### Run All
+```
+./run_all.sh
+```
+### Run Individually
+#### Build
+```
+make
+```
+#### Identity
+```
+./scripts/run_identity.sh
+```
+#### Tennis
+```
+./scripts/run_tennis.sh
+```
+#### Iris
+```
+./scripts/run_iris.sh
+```
+#### IrisNoisy
+```
+./scripts/run_irisNoisy.sh
+```
+#### Clean object files
+```
+make clean
+```
 
-TODO:
-stopping criterion (e.g. number of iterations, convergence, or low enough error)
+## File Structure
+```
+neural-network-classifer/
+├── data/
+│   ├── identity-attr.txt
+│   ├── identity-train.txt
+│   ├── iris-attr.txt
+│   ├── iris-test.txt
+│   ├── iris-train.txt
+│   ├── tennis-attr.txt
+│   ├── tennis-test.txt
+│   └── tennis-train.txt
+├── include/
+│   ├── AttrParser.h
+│   ├── Dataset.h
+│   ├── MLP.h
+│   └── Util.h
+├── scripts/
+│   ├── grid_search.sh
+│   ├── make_plot.sh
+│   ├── run_identity.sh
+│   ├── run_iris.sh
+│   ├── run_irisNoisy.sh
+│   └── run_tennis.sh
+├── src/
+│   ├── AttrParser.cpp
+│   ├── Dataset.cpp
+│   ├── MLP.cpp
+│   ├── Util.cpp
+│   └── main.cpp
+|
+├── Makefile
+└── run_all.sh
+```
+## File Overview
 
-cd /home/ggmeiner22/projects/ml/neural-network-classifer
-
-# tennis
-./scripts/grid_search.sh tennis \
-    data/tennis-attr.txt data/tennis-train.txt data/tennis-test.txt
-
-# iris
-./scripts/grid_search.sh iris \
-    data/iris-attr.txt data/iris-train.txt data/iris-test.txt
-
-# iris_noisy (same files, just mode differs)
-./scripts/grid_search.sh iris_noisy \
-    data/iris-attr.txt data/iris-train.txt data/iris-test.txt
-
-By default the search script now varies the number of epochs (see the
-`epochs` array at the top of `scripts/grid_search.sh`); adjust that list
-if you want to tune training duration as well.
-
-./scripts/grid_search.sh identity \
-    data/identity-attr.txt data/identity-train.txt
