@@ -27,11 +27,11 @@ fi
 
 # specify grid here; edit as needed
 # specify grid here; edit as needed
-hiddens=(3 4)
+hiddens=(5)
 lrs=(0.01 0.05 0.1 0.2)
-moms=(0.0 0.1 0.2 0.5 0.7 0.8 0.9)
+moms=(0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9)
 wds=(0 0.1 0.01 0.001 0.0001)
-epochs=(100 500 1000 2500 5000 10000 50000)   # try multiple epoch counts
+epochs=(10 20 25 30 35 40 45 50 55 60)   # try multiple epoch counts
 
 # compile first
 make || exit 1
