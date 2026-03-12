@@ -3,15 +3,23 @@
 
 #include <vector>
 
+// Class implementing a two-layer Multi-Layer Perceptron neural network
 class MLP {
 public:
+
+    // Defines how the output layer should behave depending on the task
     enum OutputMode {
-        CLASSIFICATION_SOFTMAX,  // tennis/iris
-        MULTI_SIGMOID            // identity
+        CLASSIFICATION_SOFTMAX,  // Used for classification problems (tennis, iris)
+                                 // Outputs probabilities using softmax activation
+
+        MULTI_SIGMOID            // Used for identity mapping tasks
+                                 // Each output neuron uses independent sigmoid activation
     };
 
+    // Constructor: creates a neural network with specified layer sizes
     MLP(int inputSize, int hiddenSize, int outputSize, OutputMode mode);
 
+    // Trains the network using backpropagation
     void train(const std::vector<std::vector<double>>& X,
                const std::vector<std::vector<double>>& Y,
                int epochs,
@@ -31,16 +39,24 @@ public:
     int predictClass(const std::vector<double>& x) const;
 
 private:
+    // Number of neurons in each layer
     int inSize, hidSize, outSize;
-    OutputMode mode;
+    OutputMode mode;  // Determines whether the network uses softmax or sigmoid outputs
 
-    std::vector<std::vector<double>> W1; // hidSize x inSize
+    // Weight matrix from input layer -> hidden layer
+    // Dimensions: hiddenSize x inputSize
+    std::vector<std::vector<double>> W1;
+
+    // Weight matrix from hidden layer -> output layer
+    // Dimensions: outputSize x hiddenSize
     std::vector<std::vector<double>> W2; // outSize x hidSize
 
-    static double sigmoid(double z);
+    static double sigmoid(double z);  // Sigmoid activation function
+
+    // Softmax activation function for classification outputs
     static std::vector<double> softmax(const std::vector<double>& v);
 
-    // compute hidden activations
+    // Computes hidden layer activations during forward propagation
     std::vector<double> hiddenActivations(const std::vector<double>& x) const;
 };
 
