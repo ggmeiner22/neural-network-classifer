@@ -1,5 +1,5 @@
 # neural-network-classifer
-
+This project implements a multi-layer perceptron neural network for classification and identity mapping tasks. The system loads datasets from attribute and data files, converts them into numerical feature vectors, trains the neural network using backpropagation, and evaluates model performance using accuracy metrics. Experiments include classification on the Tennis and Iris datasets as well as robustness testing with noisy labels.
 
 ## Compalation and Execution
 ```
@@ -158,4 +158,5 @@ Defines compilation rules for building the project.
 - Builds the project
 - Runs all experiment modes
 > Provides a reproducible workflow for testing the neural network on all datasets.
+
 
