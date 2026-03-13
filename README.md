@@ -140,12 +140,13 @@ Contains datasets used for experiments.
 > Each dataset includes an attribute file describing the schema and corresponding training/testing files.
 
 ### scripts/
-Automation scripts for running individual experiments and hyperparameter searches.
+Automation scripts for running individual experiments, hyperparameter searches, and plotting runs.
 - `run_identity.sh`
 - `run_tennis.sh`
 - `run_iris.sh`
 - `run_irisNoisy.sh`
 - `grid_search.sh`
+- `make_plot.sh`
 
 ### Makefile
 Defines compilation rules for building the project.

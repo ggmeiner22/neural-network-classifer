@@ -1,99 +1,150 @@
-# Neural Network Classifier - HW3 Implementation
+neural-network-classifer
+This project implements a multi-layer perceptron neural network for classification and identity mapping tasks. The system loads datasets from attribute and data files, converts them into numerical feature vectors, trains the neural network using backpropagation, and evaluates model performance using accuracy metrics. Experiments include classification on the Tennis and Iris datasets as well as robustness testing with noisy labels.
 
-## Compilation
+Compalation and Execution
+chmod -R u+w .
+chmod +x *.sh
+chmod +x scripts/*.sh
+chmod +x src/*.cpp
 
-From the Neural Network Classifier root directory, run:
+Run All
+./run_all.sh
 
-    make
+Run Individually
+Build
+make
 
-This will compile all source files in src/ and produce the executable nn.
+Identity
+./scripts/run_identity.sh
 
-## Running the Four Required Tests
+Tennis
+./scripts/run_tennis.sh
 
-### 1. testIdentity
+Iris
+./scripts/run_iris.sh
 
-Output accuracy and hidden/output values for identity dataset with 3 and 4 hidden units:
+IrisNoisy
+./scripts/run_irisNoisy.sh
 
-    ./scripts/run_identity.sh
+Clean object files
+make clean
 
-This script runs:
-- Identity with 3 hidden units: ./nn --mode identity --attr data/identity-attr.txt --train data/identity-train.txt --hidden 3 --lr 0.2 --momentum 0.9 --weight_decay 0 --epochs 3000000 --seed 1
-- Identity with 4 hidden units: ./nn --mode identity --attr data/identity-attr.txt --train data/identity-train.txt --hidden 4 --lr 0.01 --momentum 0.7 --weight_decay 0 --epochs 100000 --seed 1
 
-Output format: For each input sample, displays:
-  - input bits
-  - hidden values (2 decimals) with binary threshold at 0.5
-  - output values (1 decimal)
-  
-Example: 10000000 -> 0.95 0.03 0.85 (1 0 1) -> 0.8  0.0  0.1  0.1  0.1  0.2  0.0  0.1
+File Structure
+neural-network-classifer/
+├── data/
+│   ├── identity-attr.txt
+│   ├── identity-train.txt
+│   ├── iris-attr.txt
+│   ├── iris-test.txt
+│   ├── iris-train.txt
+│   ├── tennis-attr.txt
+│   ├── tennis-test.txt
+│   └── tennis-train.txt
+├── include/
+│   ├── AttrParser.h
+│   ├── Dataset.h
+│   ├── MLP.h
+│   └── Util.h
+├── scripts/
+│   ├── run_identity.sh
+│   ├── run_iris.sh
+│   ├── run_irisNoisy.sh
+│   └── run_tennis.sh
+├── src/
+│   ├── AttrParser.cpp
+│   ├── Dataset.cpp
+│   ├── MLP.cpp
+│   ├── Util.cpp
+│   └── main.cpp
+|
+├── Makefile
+└── run_all.sh
 
-### 2. testTennis
+## File Overview
 
-Output training and test accuracy for tennis dataset:
+### AttrParser.h / AttrParser.cpp
+Handles parsing of attribute schema files that describe the dataset structure.
+- **Attribute** structure stores metadata for each feature including the name, whether it is numeric, and possible categorical values.
+- **AttrParser** reads attribute files and constructs a list of attribute definitions.
+ -Detects numeric attributes (`continuous` / `numeric`) and categorical attributes with explicit value lists.
+- Determines the class attribute index for classification datasets.
+- Supports identity-style datasets by detecting `out#` attributes instead of a single class label.
+> This module reads the schema and organizes the attribute data so other parts of the system can use it.
 
-    ./scripts/run_tennis.sh
+### Dataset.h / Dataset.cpp
+Responsible for loading dataset files and converting them into numerical matrices used by the neural network.
+- Uses `AttrParser` to interpret the dataset schema.
+- Reads raw data files and converts them into:
+- **Feature matrix **
+- **Label matrix Y**
+- Handles both classification datasets and identity mapping datasets.
+- Automatically converts categorical attributes into one-hot encoded feature vectors.
+- Splits identity datasets into `in#` input features and `out#` output targets.
+> This module handles loading and preparing the data so the neural network only works with numeric values.
 
-This script runs: ./nn --mode tennis --attr data/tennis-attr.txt --train data/tennis-train.txt --test data/tennis-test.txt --hidden 4 --lr 0.05 --momentum 0.2 --epochs 50 --weight_decay 0.01
+### MLP.h / MLP.cpp
+Implements the Multi-Layer Perceptron (MLP) neural network used for learning.
+- Weight initialization for input -> hidden and hidden -> output layers
+- Forward propagation through the network
+- Hidden layer sigmoid activations
+- Output layer activation:
+  - **Softmax** for classification tasks
+  - **Sigmoid** for identity mapping tasks
+- Backpropagation for computing gradients
+- Stochastic gradient descent training
+- Momentum
+- Weight Decay
 
-Output shows:
-  - Train accuracy: % on training set
-  - Test accuracy: % on test set
+### Util.h / Util.cpp
+Provides reusable utility functions used throughout the experiments.
+- `argmax()` – returns the index of the maximum value in a vector
+- `accuracyClass()` – computes classification accuracy
+- `accuracyIdentityExact()` – computes exact-match accuracy for identity tasks
+- `splitTrainVal()` – deterministic training/validation dataset split
+- `corruptOneHotLabels()` – introduces controlled label noise for experiments
+> This module abstracts evaluation and experiment utilities from the neural network implementation.
 
-### 3. testIris
+### main.cpp
+Responsibilities include:
+- Parsing command-line arguments
+- Configuring experiment parameters
+- Selecting which experiment mode to run
+- Loading datasets
+- Creating and training the neural network
+- Reporting experiment results  
 
-Output training and test accuracy for iris dataset:
+Supported experiment modes:   
+- **identity** – trains the network to reproduce input bit patterns
+- **tennis** – classification experiment using the PlayTennis dataset
+- **iris** – classification experiment using the Iris dataset
+- **iris_noisy** – evaluates robustness to label noise with and without validation
+> Also controls random seeding to ensure reproducible experiments.
 
-    ./scripts/run_iris.sh
+### data/
+Contains datasets used for experiments.
+- **identity**-* – binary identity mapping dataset
+- **tennis**-* – discrete attribute classification dataset
+- **iris**-* – continuous attribute classification dataset
+> Each dataset includes an attribute file describing the schema and corresponding training/testing files.
 
-This script runs: ./nn --mode iris --attr data/iris-attr.txt --train data/iris-train.txt --test data/iris-test.txt --hidden 16 --lr 0.01 --momentum 0.9 --epochs 2000 --weight_decay 0.0001
+### scripts/
+Automation scripts for running individual experiments.
+- `run_identity.sh`
+- `run_tennis.sh`
+- `run_iris.sh`
+- `run_irisNoisy.sh`
 
-Output shows:
-  - Train accuracy: % on training set
-  - Test accuracy: % on test set
+Makefile
+Defines compilation rules for building the project.
+- Uses C++11 standard
+- Compiles source files into object files
+- Links the final executable
+> Ensures consistent builds across machines
 
-### 4. testIrisNoisy
+run_all.sh
+- Builds the project
+- Runs all experiment modes
+> Provides a reproducible workflow for testing the neural network on all datasets.
 
-Output accuracy on uncorrupted test set for 0%-20% label corruption (2% increments), with and without validation-based early stopping:
 
-    ./scripts/run_irisNoisy.sh
-
-This script runs: ./nn --mode iris_noisy --attr data/iris-attr.txt --train data/iris-train.txt --test data/iris-test.txt --hidden 16 --lr 0.01 --momentum 0.9 --epochs 2000 --weight_decay 0.0001 --valfrac 0.2 --seed 8
-
-Output is a table with columns:
-  - Noise%: Percentage of training labels corrupted (0%, 2%, ..., 20%)
-  - TestAcc(no-val): Test accuracy without using validation set
-  - TestAcc(with-val): Test accuracy with validation-based early stopping
-
-Also generates iris_noisy_compare.png plot comparing the two training approaches.
-
-## Implementation Details
-
-- Algorithm: Backpropagation with momentum and L2 weight decay
-- Language: C++11
-- Network: One hidden layer, configurable hidden units (3-16)
-- Input Parameters Supported:
-  - --hidden: Number of hidden units
-  - --lr: Learning rate
-  - --momentum: Momentum factor
-  - --epochs: Number of training epochs (stopping criterion)
-  - --weight_decay: L2 weight decay coefficient
-  - --seed: Random seed for reproducibility
-  - --valfrac: Validation split fraction (for early stopping)
-  - --mode: One of identity, tennis, iris, iris_noisy
-
-- Output Encoding: Discrete attributes converted to 1-of-n representation
-- Loss Functions:
-  - Classification (iris, tennis): Cross-entropy with softmax
-  - Identity: Mean squared error with sigmoid
-
-## Cleaning Build Artifacts
-
-    make clean
-
-This removes object files, executables, and generated data files.
-
-## Prerequisites
-
-Uses standard C++11 libraries only; no external dependencies.
-Tested on Linux (Ubuntu 22.04), compiles with g++ with standard flags.
-Requires bash for test scripts (scripts/run_*.sh).
